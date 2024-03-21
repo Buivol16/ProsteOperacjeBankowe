@@ -32,15 +32,15 @@ public class UserInputProjection {
   }
 
   public static class UserInputProjectionBuilder {
-    private static String pesel = null;
+    private static String username = null;
     private static String password = null;
 
     public UserInputProjection build() {
-      return new UserInputProjection(pesel, password);
+      return new UserInputProjection(username, password);
     }
 
-    public UserInputProjectionBuilder pesel(String username) {
-      this.pesel = username;
+    public UserInputProjectionBuilder username(String username) {
+      this.username = username;
       return this;
     }
 
