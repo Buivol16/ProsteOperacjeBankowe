@@ -22,7 +22,7 @@ public class UserParser implements ObjectParser<User> {
                 datas[3],
                 datas[4],
                 Country.valueOf(datas[5]),
-                pattern.group());
+                pattern.group().replace("[", ""));
       }
     }
     return users;
