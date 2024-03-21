@@ -6,6 +6,7 @@ import assets.FileManager;
 import balance.Balance;
 import exceptions.BlankFileException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import transactions.Transaction;
@@ -27,12 +28,18 @@ public class TransactionDbHandler {
     }
   }
 
-  public static Transaction[] findHistoryByBalance(Balance balance) {
+  public static Transaction[] findHistoryByBalanceBetweenDates(
+      Balance balance, LocalDate from, LocalDate to) {
     return Arrays.stream(findAll())
         .filter(
-            transaction ->
-                transaction.getFrom().getAccount_number().equals(balance.getAccount_number())
-                    || transaction.getTo().getAccount_number().equals(balance.getAccount_number()))
+            (transaction) ->
+                (transaction.getFrom().getAccount_number().equals(balance.getAccount_number())
+                        || transaction
+                            .getTo()
+                            .getAccount_number()
+                            .equals(balance.getAccount_number()))
+                    && transaction.getAt().isBefore(to.atStartOfDay())
+                    && transaction.getAt().isAfter(from.atStartOfDay()))
         .sorted(Comparator.comparing(Transaction::getId))
         .toArray(Transaction[]::new);
   }
