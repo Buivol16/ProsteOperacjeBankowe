@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class User {
   private Long id;
-  private String username;
+  private String pesel;
   private String password;
   private String name;
   private String surname;
@@ -21,12 +21,12 @@ public class User {
     this.id = id;
   }
 
-  public String getUsername() {
-    return username;
+  public String getPesel() {
+    return pesel;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setPesel(String pesel) {
+    this.pesel = pesel;
   }
 
   public String getPassword() {
@@ -73,14 +73,14 @@ public class User {
 
   public User(
       Long id,
-      String username,
+      String pesel,
       String password,
       String name,
       String surname,
       Country country,
       String street) {
     this.id = id;
-    this.username = username;
+    this.pesel = pesel;
     this.password = password;
     this.name = name;
     this.surname = surname;
@@ -91,7 +91,7 @@ public class User {
   @Override
   public String toString() {
     return String.format(
-        "%s %s %s %s %s %s [%s]", id, username, password, name, surname, country, street);
+        "%s %s %s %s %s %s [%s]", id, pesel, password, name, surname, country, street);
   }
 
   @Override
@@ -100,7 +100,7 @@ public class User {
     if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
     return Objects.equals(id, user.id)
-        && Objects.equals(username, user.username)
+        && Objects.equals(pesel, user.pesel)
         && Objects.equals(password, user.password)
         && Objects.equals(name, user.name)
         && Objects.equals(surname, user.surname)

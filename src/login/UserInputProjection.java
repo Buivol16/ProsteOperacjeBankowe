@@ -1,22 +1,22 @@
 package login;
 
 public class UserInputProjection {
-  private String username;
+  private String pesel;
   private String password;
 
   private UserInputProjection() {}
 
-  private UserInputProjection(String username, String password) {
-    this.username = username;
+  private UserInputProjection(String pesel, String password) {
+    this.pesel = pesel;
     this.password = password;
   }
 
-  public String getUsername() {
-    return username;
+  public String getPesel() {
+    return pesel;
   }
 
-  public void setUsername(String username) {
-    this.username = username;
+  public void setPesel(String pesel) {
+    this.pesel = pesel;
   }
 
   public String getPassword() {
@@ -32,15 +32,15 @@ public class UserInputProjection {
   }
 
   public static class UserInputProjectionBuilder {
-    private static String username = null;
+    private static String pesel = null;
     private static String password = null;
 
     public UserInputProjection build() {
-      return new UserInputProjection(username, password);
+      return new UserInputProjection(pesel, password);
     }
 
-    public UserInputProjectionBuilder username(String username) {
-      this.username = username;
+    public UserInputProjectionBuilder pesel(String pesel) {
+      this.pesel = pesel;
       return this;
     }
 

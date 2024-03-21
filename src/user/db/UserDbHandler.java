@@ -26,8 +26,8 @@ public class UserDbHandler {
   }
 
   public static User saveUser(User user) throws UserExistsException {
-    if (checkUsername(user.getUsername()))
-      throw new UserExistsException("This username already exists in DB");
+    if (checkPesel(user.getPesel()))
+      throw new UserExistsException("This PESEL already exists in DB");
     var userId = findFreeId();
     user.setId(userId);
     var toWrite = user.toString();
@@ -41,18 +41,18 @@ public class UserDbHandler {
       return Arrays.stream(findAll())
           .filter(
               user ->
-                  user.getUsername().equals(inputProjection.getUsername())
+                  user.getPesel().equals(inputProjection.getPesel())
                       && user.getPassword().equals(inputProjection.getPassword()))
           .findFirst()
-          .orElseThrow(() -> new UserNotFoundException("Wrong username or password"));
+          .orElseThrow(() -> new UserNotFoundException("Wrong PESEL or password"));
     } catch (BlankFileException e) {
       throw new UserNotFoundException("User doesn't exist");
     }
   }
 
-  public static boolean checkUsername(String username) {
+  public static boolean checkPesel(String pesel) {
     try {
-      return Arrays.stream(findAll()).anyMatch(user -> user.getUsername().equals(username));
+      return Arrays.stream(findAll()).anyMatch(user -> user.getPesel().equals(pesel));
     } catch (BlankFileException e) {
       return false;
     }

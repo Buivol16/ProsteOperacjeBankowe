@@ -1,17 +1,18 @@
 package login;
 
+import static assets.ArgumentChecker.writeForArgument;
 import static assets.Flags.NOT_LONG;
 import static assets.Flags.NOT_SHORT;
 import static assets.Flags.ONLY_NUMBERS;
+import static assets.Flags.PESEL;
 
-import assets.Flags;
 import balance.Balance;
 import balance.db.BalanceDbHandler;
 import exceptions.BalanceNotFoundException;
 import exceptions.NotEnoughMoneyException;
 import exceptions.UserNotFoundException;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Scanner;
 import transactions.db.TransactionDbHandler;
 import user.User;
@@ -22,10 +23,10 @@ public class LoginHandler {
   public static void run() {
     User user = null;
     while (user == null) {
-      String username = writeUsername();
+      String pesel = writePesel();
       String password = writePassword();
       var userInputProjection =
-          UserInputProjection.builder().username(username).password(password).build();
+          UserInputProjection.builder().pesel(pesel).password(password).build();
       try {
         user = login(userInputProjection);
       } catch (UserNotFoundException e) {
@@ -40,20 +41,14 @@ public class LoginHandler {
       var scanner = new Scanner(System.in);
       String answer = scanner.nextLine();
       try {
-        if (answer.equals("1")) {
-          aboutMe(user);
-        } else if (answer.equals("2")) {
-          makeTransaction(user);
-        } else if (answer.equals("3")) {
-          myBankAccount(user);
-        } else if (answer.equals("4")) {
-          transactionsHistory(user);
-        } else if (answer.equals("5")) {
-          break;
-        } else {
+        if (answer.equals("1")) aboutMe(user);
+        else if (answer.equals("2")) makeTransaction(user);
+        else if (answer.equals("3")) myBankAccount(user);
+        else if (answer.equals("4")) transactionsHistory(user);
+        else if (answer.equals("5")) break;
+        else
           throw new IllegalArgumentException(
               "You wrote a wrong argument. You need to write only \"1\", \"2\", \"3\", or \"4\" in that case.");
-        }
       } catch (Exception e) {
         e.printStackTrace();
         System.out.println("Let's try again.\n\n");
@@ -63,11 +58,17 @@ public class LoginHandler {
 
   private static void transactionsHistory(User user) throws UserNotFoundException {
     var bankAccount = BalanceDbHandler.findBalanceByUser(user);
-    var history = TransactionDbHandler.findHistoryByBalance(bankAccount);
+    var fromDate = writeDateFrom();
+    var toDate = writeDateTo();
+
+    var history =
+        TransactionDbHandler.findHistoryByBalanceBetweenDates(bankAccount, fromDate, toDate);
     System.out.println();
-    for (var obj : history) {
-      System.out.printf(
-          """
+    if (history.length == 0) System.out.println("There is no history...");
+    else {
+      for (var obj : history) {
+        System.out.printf(
+            """
     Id: %s
     From: %s
     To: %s
@@ -75,13 +76,46 @@ public class LoginHandler {
     At: %s
 
     """,
-          obj.getId(),
-          obj.getFrom().getAccount_number(),
-          obj.getTo().getAccount_number(),
-          obj.getSum(),
-          obj.getAt().format(DateTimeFormatter.ofPattern("dd/MMM/yyyy HH:mm:ss")));
+            obj.getId(),
+            obj.getFrom().getAccount_number(),
+            obj.getTo().getAccount_number(),
+            obj.getSum(),
+            obj.getAt().format(DateTimeFormatter.ofPattern("dd/MMM/yyyy HH:mm:ss")));
+      }
     }
     System.out.println();
+  }
+
+  private static LocalDate writeDateFrom() {
+    var scanner = new Scanner(System.in);
+    var dateFrom = LocalDate.MIN;
+    try {
+      System.out.println(
+          "Write a date from which you want to see a history or leave empty row. Example: 21/03/2024");
+      var answer = scanner.nextLine();
+      if (answer.equals("")) return dateFrom;
+      dateFrom = LocalDate.parse(answer, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+      return dateFrom;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return writeDateFrom();
+    }
+  }
+
+  private static LocalDate writeDateTo() {
+    var scanner = new Scanner(System.in);
+    var dateTo = LocalDate.MAX;
+    try {
+      System.out.println(
+          "Write a date to which you want to see a history or leave empty row. Example: 21/03/2024");
+      var answer = scanner.nextLine();
+      if (answer.equals("")) return dateTo;
+      dateTo = LocalDate.parse(answer, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+      return dateTo;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return writeDateFrom();
+    }
   }
 
   private static Balance makeTransaction(User user) {
@@ -122,14 +156,14 @@ Balance: %s
     System.out.printf(
         """
 
-                    Username: %s
+                    PESEL: %s
                     Name: %s
                     Surname: %s
                     Country: %s
                     Street: %s
 
                     """,
-        user.getUsername(),
+        user.getPesel(),
         user.getName(),
         user.getSurname(),
         user.getCountry().name(),
@@ -140,14 +174,14 @@ Balance: %s
     return UserDbHandler.login(userInputProjection);
   }
 
-  private static String writeUsername() {
-    String afterExceptionMessage = "Type your username again\nExample: Buivol16";
+  private static String writePesel() {
+    String afterExceptionMessage = "Type your PESEL again\nExample: 81010200131";
 
-    System.out.println("Username:");
+    System.out.println("PESEL:");
 
     while (true) {
       try {
-        var argument = writeForArgument(NOT_SHORT, NOT_LONG);
+        var argument = writeForArgument(PESEL, ONLY_NUMBERS);
         return argument;
       } catch (Exception e) {
         e.printStackTrace();
@@ -169,19 +203,5 @@ Balance: %s
         System.out.println(afterExceptionMessage);
       }
     }
-  }
-
-  private static String writeForArgument(Flags... flags) throws IllegalArgumentException {
-    var scanner = new Scanner(System.in);
-    String argument;
-    var list = Arrays.asList(flags);
-    argument = scanner.nextLine();
-    if (list.contains(NOT_SHORT) && argument.length() < 2)
-      throw new IllegalArgumentException("The argument must not be quite short");
-    if (list.contains(NOT_LONG) && argument.length() > 64)
-      throw new IllegalArgumentException("The argument must not be quite long");
-    if (list.contains(ONLY_NUMBERS) && argument.matches("\\D+"))
-      throw new IllegalArgumentException("The argument must contains only numbers");
-    return argument;
   }
 }

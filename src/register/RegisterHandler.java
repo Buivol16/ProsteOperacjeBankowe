@@ -1,32 +1,31 @@
 package register;
 
+import static assets.ArgumentChecker.writeForArgument;
 import static assets.Flags.COUNTRY;
 import static assets.Flags.NOT_LONG;
 import static assets.Flags.NOT_SHORT;
 import static assets.Flags.ONLY_LETTERS;
+import static assets.Flags.ONLY_NUMBERS;
+import static assets.Flags.PESEL;
 
 import assets.Country;
-import assets.Flags;
 import balance.Balance;
 import balance.db.BalanceDbHandler;
 import exceptions.UserExistsException;
-import java.util.Arrays;
-import java.util.Scanner;
 import user.User;
 import user.db.UserDbHandler;
 
 public class RegisterHandler {
-  private static final Scanner scanner = new Scanner(System.in);
 
   public static void run() {
     System.out.println("Let's create a new account in the system.");
-    String username = writeUsername();
+    String pesel = writePesel();
     String password = writePassword();
     String name = writeName();
     String surname = writeSurname();
     Country country = Country.valueOf(writeCountry());
     String street = String.format("[%s]", writeStreet());
-    var user = new User(null, username, password, name, surname, country, street);
+    var user = new User(null, pesel, password, name, surname, country, street);
     register(user);
   }
 
@@ -75,16 +74,16 @@ public class RegisterHandler {
     }
   }
 
-  private static String writeUsername() {
-    String afterExceptionMessage = "Type your username again\nExample: Buivol16";
+  private static String writePesel() {
+    String afterExceptionMessage = "Type your PESEL again\nExample: 81010200131";
 
-    System.out.println("Now type your username:");
+    System.out.println("Now type your PESEL:");
 
     while (true) {
       try {
-        var argument = writeForArgument(NOT_SHORT, NOT_LONG);
-        if (UserDbHandler.checkUsername(argument))
-          throw new UserExistsException("This username is already exists");
+        var argument = writeForArgument(PESEL, ONLY_NUMBERS);
+        if (UserDbHandler.checkPesel(argument))
+          throw new UserExistsException("This PESEL is already exist");
         return argument;
       } catch (Exception e) {
         e.printStackTrace();
@@ -140,27 +139,5 @@ public class RegisterHandler {
         System.out.println(afterExceptionMessage);
       }
     }
-  }
-
-  private static String writeForArgument(Flags... flags) throws IllegalArgumentException {
-    String argument;
-    var list = Arrays.asList(flags);
-    argument = scanner.nextLine();
-    if (list.contains(ONLY_LETTERS) && !argument.matches("^\\p{L}+$"))
-      throw new IllegalArgumentException("The argument must contains only letters");
-    if (list.contains(NOT_SHORT) && argument.length() < 2)
-      throw new IllegalArgumentException("The argument must not be quite short");
-    if (list.contains(NOT_LONG) && argument.length() > 64)
-      throw new IllegalArgumentException("The argument must not be quite long");
-    if (list.contains(COUNTRY)) return isCountry(argument).name();
-    return argument;
-  }
-
-  private static Country isCountry(String argument) {
-    return Arrays.stream(Country.values())
-        .filter((country) -> country.name().equalsIgnoreCase(argument))
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalArgumentException("The argument is not equals to any country"));
   }
 }
