@@ -24,7 +24,7 @@ public class RegisterHandler {
     String name = writeName();
     String surname = writeSurname();
     Country country = Country.valueOf(writeCountry());
-    String street = String.format("[%s]", writeStreet());
+    String street = String.format("%s", writeStreet());
     var user = new User(null, pesel, password, name, surname, country, street);
     register(user);
   }
