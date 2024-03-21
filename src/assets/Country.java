@@ -1,0 +1,5 @@
+package assets;
+
+public enum Country {
+    USA, POLAND, UKRAINE, GERMANY, CANADA, FRANCE, SPAIN, ITALY, MEXICO, ARGENTINA, BRAZIL
+}
