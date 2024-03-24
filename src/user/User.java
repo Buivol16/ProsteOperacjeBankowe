@@ -4,7 +4,7 @@ import assets.Country;
 
 import java.util.Objects;
 
-public class User {
+public class  User {
   private Long id;
   private String pesel;
   private String password;
@@ -99,12 +99,11 @@ public class User {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
-    return Objects.equals(id, user.id)
-        && Objects.equals(pesel, user.pesel)
-        && Objects.equals(password, user.password)
-        && Objects.equals(name, user.name)
-        && Objects.equals(surname, user.surname)
-        && country == user.country
-        && Objects.equals(street, user.street);
+    return Objects.equals(id, user.id) && Objects.equals(pesel, user.pesel) && Objects.equals(password, user.password) && Objects.equals(name, user.name) && Objects.equals(surname, user.surname) && country == user.country && Objects.equals(street, user.street);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, pesel, password, name, surname, country, street);
   }
 }

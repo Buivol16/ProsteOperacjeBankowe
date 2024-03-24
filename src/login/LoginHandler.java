@@ -64,7 +64,7 @@ public class LoginHandler {
     var history =
         TransactionDbHandler.findHistoryByBalanceBetweenDates(bankAccount, fromDate, toDate);
     System.out.println();
-    if (history.length == 0) System.out.println("There is no history...");
+    if (history == null || history.length == 0) System.out.println("There is no history...");
     else {
       for (var obj : history) {
         System.out.printf(

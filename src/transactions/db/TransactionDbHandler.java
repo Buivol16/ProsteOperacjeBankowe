@@ -30,7 +30,9 @@ public class TransactionDbHandler {
 
   public static Transaction[] findHistoryByBalanceBetweenDates(
       Balance balance, LocalDate from, LocalDate to) {
-    return Arrays.stream(findAll())
+    var history = findAll();
+    if (history == null) return null;
+    return Arrays.stream(history)
         .filter(
             (transaction) ->
                 (transaction.getFrom().getAccount_number().equals(balance.getAccount_number())
